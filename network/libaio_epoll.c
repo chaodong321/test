@@ -104,7 +104,7 @@ int main(int ac, char *argv[])
 
     //读取已完成的异步IO事件数量
     n = read(evfd, &ready, sizeof(ready));
-    if(n != 8){
+    if(n < 8){
         perror("read error");
         exit(10);
     }

@@ -14,10 +14,10 @@ int odsfd = -1;
 static void wr_done(io_context_t ctx, struct iocb *iocb, long res, long res2)
 {
     if (res2 != 0) {
-        printf("aio write error n");
+        printf("aio write error\n");
     }
     if (res != iocb->u.c.nbytes) {
-        printf("write missed bytes expect % d got % d n", iocb->u.c.nbytes, res);
+        printf("write missed bytes expect %d got %d\n", iocb->u.c.nbytes, res);
         exit(1);
     }
 
@@ -35,33 +35,33 @@ static void rd_done(io_context_t ctx, struct iocb *iocb, long res, long res2)
     char *wrbuff = NULL;
 
     if (res2 != 0) {
-        printf("aio read n");
+        printf("aio read\n");
     }
     if (res != iosize) {
-        printf("read missing bytes expect % d got % d", iocb->u.c.nbytes, res);
+        printf("read missing bytes expect %d got %d\n", iocb->u.c.nbytes, res);
         exit(1);
     }
 
     
     tmp = posix_memalign((void **)&wrbuff, getpagesize(), AIO_BLKSIZE);
     if (tmp < 0) {
-        printf("posix_memalign222 n");
+        printf("posix_memalign222\n");
         exit(1);
     }
 
     snprintf(wrbuff, iosize + 1, "%s", buf);
 
-	printf("wrbuff - len = %d:%s n", strlen(wrbuff), wrbuff);
-    printf("wrbuff_len = %d n", strlen(wrbuff));
+	printf("wrbuff - len = %d:%s\n", strlen(wrbuff), wrbuff);
+    printf("wrbuff_len = %d\n", strlen(wrbuff));
     free(buf);
 
     io_prep_pwrite(iocb, odsfd, wrbuff, iosize, offset);
     io_set_callback(iocb, wr_done);
 
     if (1 != (res = io_submit(ctx, 1, &iocb)))
-        printf("io_submit write error n");
+        printf("io_submit write error\n");
 
-    printf("nsubmit % d write request n", res);
+    printf("nsubmit %d write request\n", res);
 }
 
 void main(int args, void *argv[])
@@ -75,16 +75,16 @@ void main(int args, void *argv[])
     int num, i, tmp;
 
     if (args < 3) {
-        printf("the number of param is wrong n");
+        printf("the number of param is wrong\n");
         exit(1);
     }
 
     if ((srcfd = open(argv[1], O_RDWR)) < 0) {
-        printf("open srcfile error n");
+        printf("open srcfile error\n");
         exit(1);
     }
 
-    printf("srcfd = %d n", srcfd);
+    printf("srcfd = %d\n", srcfd);
 
     lseek(srcfd, 0, SEEK_SET);
     write(srcfd, "abcdefg", length);
@@ -92,11 +92,11 @@ void main(int args, void *argv[])
     lseek(srcfd, 0, SEEK_SET);
     read(srcfd, content, length);
 
-    printf("write in the srcfile successful, content is % s n", content);
+    printf("write in the srcfile successful, content is %s\n", content);
 
     if ((odsfd = open(argv[2], O_RDWR)) < 0) {
         close(srcfd);
-        printf("open odsfile error n");
+        printf("open odsfile error\n");
         exit(1);
     }
 
@@ -107,11 +107,11 @@ void main(int args, void *argv[])
     int iosize = AIO_BLKSIZE;
     tmp = posix_memalign((void **)&buff, getpagesize(), AIO_BLKSIZE);  //同malloc，只是以getpagesize倍数的内存块分配
     if (tmp < 0) {
-        printf("posix_memalign error n");
+        printf("posix_memalign error\n");
         exit(1);
     }
     if (NULL == io) {
-        printf("io out of memeory n");
+        printf("io out of memeory\n");
         exit(1);
     }
 
@@ -119,14 +119,14 @@ void main(int args, void *argv[])
 
     io_set_callback(io, rd_done);
 
-    printf("START...n n");
+    printf("START...\n");
 
     rc = io_submit(myctx, 1, &io);
 
     if (rc < 0)
-        printf("io_submit read error n");
+        printf("io_submit read error\n");
 
-    printf("nsubmit % d read request n", rc);
+    printf("nsubmit %d read request\n", rc);
 
     //m_io_queue_run(myctx);
 
@@ -134,13 +134,13 @@ void main(int args, void *argv[])
     io_callback_t cb;
 
     num = io_getevents(myctx, 1, AIO_MAXIO, events, NULL);
-    printf("n % d io_request completed n n", num);
+    printf("n %d io_request completed\n", num);
 
     for (i = 0; i < num; i++) {
         cb = (io_callback_t) events[i].data;
         struct iocb *io = events[i].obj;
 
-        printf("events[%d].data = %x, res = %d, res2 = %d n", i, cb, events[i].res, events[i].res2);
+        printf("events[%d].data = %x, res = %d, res2 = %d\n", i, cb, events[i].res, events[i].res2);
         cb(myctx, io, events[i].res, events[i].res2);
     }
 
