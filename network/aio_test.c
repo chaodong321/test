@@ -37,8 +37,6 @@ int main(void)
     cb.aio_sigevent.sigev_notify = SIGEV_SIGNAL;
     cb.aio_sigevent.sigev_signo = SIGUSR1;
 
-    sleep(20);
-
     ret = aio_read(&cb);
     if (ret == -1) {
         perror("aio_read");
@@ -51,7 +49,7 @@ int main(void)
     int i = 0;
     while (1) {
         printf("%d\n",i++);
-        sleep(3);
+        sleep(1);
     }
 
     return 0;
